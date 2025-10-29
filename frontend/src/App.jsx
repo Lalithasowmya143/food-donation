@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from '.src/Pages/Login';
-import Register from '.src/Pages/Register';
-import DonorDashboard from '.src/Pages/DonorDashboard';
-import RecipientDashboard from '.src/Pages/RecipientDashboard';
+
+// ✅ Corrected import paths
+import Login from './Pages/Login';
+import Register from './Pages/Register';
+import DonorDashboard from './Pages/DonorDashboard';
+import RecipientDashboard from './Pages/RecipientDashboard';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -40,6 +42,7 @@ function App() {
             )
           } 
         />
+        
         <Route 
           path="/login" 
           element={
@@ -52,6 +55,7 @@ function App() {
             )
           } 
         />
+        
         <Route 
           path="/register" 
           element={
@@ -64,6 +68,7 @@ function App() {
             )
           } 
         />
+        
         <Route 
           path="/donor-dashboard" 
           element={
@@ -74,6 +79,7 @@ function App() {
             )
           } 
         />
+        
         <Route 
           path="/recipient-dashboard" 
           element={
