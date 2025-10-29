@@ -28,8 +28,11 @@ const Register = () => {
     setSuccess('');
     setLoading(true);
 
+    // --- THIS IS THE UPDATED LINE ---
+    const API_URL = 'https://food-donation-5gz1.onrender.com/api/auth/register';
+
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -10,6 +10,9 @@ const Login = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // ✅ Use deployed backend URL
+  const API_BASE_URL = 'https://food-donation-5gz1.onrender.com';
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -23,7 +26,7 @@ const Login = ({ onLogin }) => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

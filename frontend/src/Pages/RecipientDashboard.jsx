@@ -6,6 +6,9 @@ const RecipientDashboard = ({ user, onLogout }) => {
   const [myClaimedDonations, setMyClaimedDonations] = useState([]);
   const [stats, setStats] = useState({});
 
+  // Base URL for your deployed API
+  const API_BASE_URL = 'https://food-donation-5gz1.onrender.com';
+
   useEffect(() => {
     fetchDonations();
     fetchMyClaimedDonations();
@@ -14,7 +17,7 @@ const RecipientDashboard = ({ user, onLogout }) => {
 
   const fetchDonations = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/donations');
+      const response = await fetch(`${API_BASE_URL}/api/donations`);
       const data = await response.json();
       setDonations(data.filter(d => d.status === 'available'));
     } catch (err) {
@@ -24,7 +27,7 @@ const RecipientDashboard = ({ user, onLogout }) => {
 
   const fetchMyClaimedDonations = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/donations/claimed/${user.id}`);
+      const response = await fetch(`${API_BASE_URL}/api/donations/claimed/${user.id}`);
       const data = await response.json();
       setMyClaimedDonations(data);
     } catch (err) {
@@ -34,7 +37,7 @@ const RecipientDashboard = ({ user, onLogout }) => {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/stats');
+      const response = await fetch(`${API_BASE_URL}/api/stats`);
       const data = await response.json();
       setStats(data);
     } catch (err) {
@@ -44,7 +47,7 @@ const RecipientDashboard = ({ user, onLogout }) => {
 
   const handleClaimDonation = async (donationId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/donations/${donationId}/claim`, {
+      const response = await fetch(`${API_BASE_URL}/api/donations/${donationId}/claim`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

@@ -15,6 +15,9 @@ const DonorDashboard = ({ user, onLogout }) => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // ✅ Change your backend base URL here
+  const API_BASE_URL = 'https://food-donation-5gz1.onrender.com';
+
   useEffect(() => {
     fetchDonations();
     fetchStats();
@@ -22,7 +25,7 @@ const DonorDashboard = ({ user, onLogout }) => {
 
   const fetchDonations = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/donations/donor/${user.id}`);
+      const response = await fetch(`${API_BASE_URL}/api/donations/donor/${user.id}`);
       const data = await response.json();
       setDonations(data);
     } catch (err) {
@@ -32,7 +35,7 @@ const DonorDashboard = ({ user, onLogout }) => {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/stats');
+      const response = await fetch(`${API_BASE_URL}/api/stats`);
       const data = await response.json();
       setStats(data);
     } catch (err) {
@@ -53,7 +56,7 @@ const DonorDashboard = ({ user, onLogout }) => {
     setMessage('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/donations', {
+      const response = await fetch(`${API_BASE_URL}/api/donations`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -92,7 +95,7 @@ const DonorDashboard = ({ user, onLogout }) => {
 
   const handleCompleteDonation = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/donations/${id}/complete`, {
+      const response = await fetch(`${API_BASE_URL}/api/donations/${id}/complete`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -111,7 +114,7 @@ const DonorDashboard = ({ user, onLogout }) => {
   const handleDeleteDonation = async (id) => {
     if (window.confirm('Are you sure you want to delete this donation?')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/donations/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/donations/${id}`, {
           method: 'DELETE'
         });
 
@@ -156,13 +159,13 @@ const DonorDashboard = ({ user, onLogout }) => {
         </div>
 
         <div className="tabs">
-          <button 
+          <button
             className={`tab ${activeTab === 'create-donation' ? 'active' : ''}`}
             onClick={() => setActiveTab('create-donation')}
           >
             Create Donation
           </button>
-          <button 
+          <button
             className={`tab ${activeTab === 'my-donations' ? 'active' : ''}`}
             onClick={() => setActiveTab('my-donations')}
           >
@@ -294,7 +297,7 @@ const DonorDashboard = ({ user, onLogout }) => {
                     </span>
                     <div className="card-actions">
                       {donation.status === 'claimed' && (
-                        <button 
+                        <button
                           onClick={() => handleCompleteDonation(donation._id)}
                           className="btn-success"
                         >
@@ -302,7 +305,7 @@ const DonorDashboard = ({ user, onLogout }) => {
                         </button>
                       )}
                       {donation.status === 'available' && (
-                        <button 
+                        <button
                           onClick={() => handleDeleteDonation(donation._id)}
                           className="btn-danger"
                         >
