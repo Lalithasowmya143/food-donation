@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from '.src/pages/Login';
-import Register from '.src/pages/Register';
-import DonorDashboard from '.src/pages/DonorDashboard';
-import RecipientDashboard from '.src/pages/RecipientDashboard';
+import Login from '.src/Pages/Login';
+import Register from '.src/Pages/Register';
+import DonorDashboard from '.src/Pages/DonorDashboard';
+import RecipientDashboard from '.src/Pages/RecipientDashboard';
 
 function App() {
   const [user, setUser] = useState(null);
