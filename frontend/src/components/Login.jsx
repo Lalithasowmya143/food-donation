@@ -1,14 +1,12 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 
-const Login = ({ onLogin }) => {
+function Login({ onLogin, onNavigate }) {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   // ✅ Use deployed backend URL
   const API_BASE_URL = 'https://food-donation-5gz1.onrender.com';
@@ -26,6 +24,7 @@ const Login = ({ onLogin }) => {
     setLoading(true);
 
     try {
+      // ✅ Updated to use the deployed API URL
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
@@ -37,17 +36,12 @@ const Login = ({ onLogin }) => {
       const data = await response.json();
 
       if (response.ok) {
-        onLogin(data.user);
-        if (data.user.userType === 'donor') {
-          navigate('/donor-dashboard');
-        } else {
-          navigate('/recipient-dashboard');
-        }
+        onLogin(data.user, data.token);
       } else {
         setError(data.message || 'Login failed');
       }
-    } catch (err) {
-      setError('Server error. Please try again.');
+    } catch (error) {
+      setError('Server error. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -56,11 +50,9 @@ const Login = ({ onLogin }) => {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h2>Food Donation System</h2>
-        <h3 style={{ textAlign: 'center', color: '#666', marginBottom: '30px' }}>Login</h3>
-        
+        <h2>Login to FoodShare</h2>
         {error && <div className="error-message">{error}</div>}
-
+        
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Email</label>
@@ -86,17 +78,17 @@ const Login = ({ onLogin }) => {
             />
           </div>
 
-          <button type="submit" className="btn" disabled={loading}>
+          <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 
-        <div className="auth-link">
-          Don't have an account? <Link to="/register">Register here</Link>
-        </div>
+        <p className="auth-link">
+          Don't have an account? <span onClick={() => onNavigate('register')}>Register here</span>
+        </p>
       </div>
     </div>
   );
-};
+}
 
 export default Login;

@@ -1,19 +1,20 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 
-const Register = () => {
+function Register({ onLogin, onNavigate }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    phone: '',
     userType: 'donor',
-    address: ''
+    phone: '',
+    address: '',
+    organizationName: ''
   });
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+
+  // ✅ Use deployed backend URL
+  const API_BASE_URL = 'https://food-donation-5gz1.onrender.com';
 
   const handleChange = (e) => {
     setFormData({
@@ -25,14 +26,11 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
     setLoading(true);
 
-    // --- THIS IS THE UPDATED LINE ---
-    const API_URL = 'https://food-donation-5gz1.onrender.com/api/auth/register';
-
     try {
-      const response = await fetch(API_URL, {
+      // ✅ Updated to use the deployed API URL
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -43,15 +41,12 @@ const Register = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccess('Registration successful! Redirecting to login...');
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
+        onLogin(data.user, data.token);
       } else {
         setError(data.message || 'Registration failed');
       }
-    } catch (err) {
-      setError('Server error. Please try again.');
+    } catch (error) {
+      setError('Server error. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -59,24 +54,43 @@ const Register = () => {
 
   return (
     <div className="auth-container">
-      <div className="auth-box">
-        <h2>Create Account</h2>
-        
+      <div className="auth-box register-box">
+        <h2>Register for FoodShare</h2>
         {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
-
+        
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Full Name</label>
+            <label>I am a</label>
+            <select name="userType" value={formData.userType} onChange={handleChange} required>
+              <option value="donor">Donor</option>
+              <option value="orphanage">Orphanage</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Name</label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
               required
-              placeholder="Enter your full name"
+              placeholder="Enter your name"
             />
           </div>
+
+          {formData.userType === 'orphanage' && (
+            <div className="form-group">
+              <label>Organization Name</label>
+              <input
+                type="text"
+                name="organizationName"
+                value={formData.organizationName}
+                onChange={handleChange}
+                placeholder="Enter organization name"
+              />
+            </div>
+          )}
 
           <div className="form-group">
             <label>Email</label>
@@ -98,13 +112,12 @@ const Register = () => {
               value={formData.password}
               onChange={handleChange}
               required
-              minLength="6"
-              placeholder="Enter password (min 6 characters)"
+              placeholder="Create a password"
             />
           </div>
 
           <div className="form-group">
-            <label>Phone Number</label>
+            <label>Phone</label>
             <input
               type="tel"
               name="phone"
@@ -116,40 +129,28 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label>User Type</label>
-            <select
-              name="userType"
-              value={formData.userType}
-              onChange={handleChange}
-              required
-            >
-              <option value="donor">Donor</option>
-              <option value="recipient">Recipient</option>
-            </select>
-          </div>
-
-          <div className="form-group">
             <label>Address</label>
             <textarea
               name="address"
               value={formData.address}
               onChange={handleChange}
               required
-              placeholder="Enter your complete address"
-            />
+              placeholder="Enter your address"
+              rows="3"
+            ></textarea>
           </div>
 
-          <button type="submit" className="btn" disabled={loading}>
+          <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? 'Registering...' : 'Register'}
           </button>
         </form>
 
-        <div className="auth-link">
-          Already have an account? <Link to="/login">Login here</Link>
-        </div>
+        <p className="auth-link">
+          Already have an account? <span onClick={() => onNavigate('login')}>Login here</span>
+        </p>
       </div>
     </div>
   );
-};
+}
 
 export default Register;

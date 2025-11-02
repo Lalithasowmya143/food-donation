@@ -1,97 +1,97 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-
-// ✅ Corrected import paths
-import Login from './Pages/Login';
-import Register from './Pages/Register';
-import DonorDashboard from './Pages/DonorDashboard';
-import RecipientDashboard from './Pages/RecipientDashboard';
+import './App.css';
+import Navbar from './components/Navbar';
+import Home from './components/Home';
+import AboutUs from './components/AboutUs';
+import Login from './components/Login';
+import Register from './components/Register';
+import DonorDashboard from './components/DonorDashboard';
+import OrphanageDashboard from './components/OrphanageDashboard';
+import Profile from './components/Profile';
+import Feedback from './components/Feedback';
 
 function App() {
+  const [currentPage, setCurrentPage] = useState('home');
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('token'));
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    if (token) {
+      fetchProfile();
     }
-  }, []);
+  }, [token]);
 
-  const handleLogin = (userData) => {
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data);
+      } else {
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
+  const handleLogin = (userData, userToken) => {
     setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+    setToken(userToken);
+    localStorage.setItem('token', userToken);
+    setCurrentPage(userData.userType === 'donor' ? 'donor-dashboard' : 'orphanage-dashboard');
   };
 
   const handleLogout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+    setToken(null);
+    localStorage.removeItem('token');
+    setCurrentPage('home');
+  };
+
+  const renderPage = () => {
+    if (!user && currentPage !== 'home' && currentPage !== 'about' && currentPage !== 'login' && currentPage !== 'register') {
+      return <Home onNavigate={setCurrentPage} />;
+    }
+
+    switch (currentPage) {
+      case 'home':
+        return <Home onNavigate={setCurrentPage} />;
+      case 'about':
+        return <AboutUs />;
+      case 'login':
+        return <Login onLogin={handleLogin} onNavigate={setCurrentPage} />;
+      case 'register':
+        return <Register onLogin={handleLogin} onNavigate={setCurrentPage} />;
+      case 'donor-dashboard':
+        return user && user.userType === 'donor' ? <DonorDashboard token={token} user={user} /> : <Home onNavigate={setCurrentPage} />;
+      case 'orphanage-dashboard':
+        return user && user.userType === 'orphanage' ? <OrphanageDashboard token={token} user={user} /> : <Home onNavigate={setCurrentPage} />;
+      case 'profile':
+        return user ? <Profile token={token} user={user} onUpdateUser={setUser} /> : <Home onNavigate={setCurrentPage} />;
+      case 'feedback':
+        return user ? <Feedback token={token} user={user} /> : <Home onNavigate={setCurrentPage} />;
+      default:
+        return <Home onNavigate={setCurrentPage} />;
+    }
   };
 
   return (
-    <Router>
-      <Routes>
-        <Route 
-          path="/" 
-          element={
-            user ? (
-              user.userType === 'donor' ? 
-                <Navigate to="/donor-dashboard" /> : 
-                <Navigate to="/recipient-dashboard" />
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-        
-        <Route 
-          path="/login" 
-          element={
-            user ? (
-              user.userType === 'donor' ? 
-                <Navigate to="/donor-dashboard" /> : 
-                <Navigate to="/recipient-dashboard" />
-            ) : (
-              <Login onLogin={handleLogin} />
-            )
-          } 
-        />
-        
-        <Route 
-          path="/register" 
-          element={
-            user ? (
-              user.userType === 'donor' ? 
-                <Navigate to="/donor-dashboard" /> : 
-                <Navigate to="/recipient-dashboard" />
-            ) : (
-              <Register />
-            )
-          } 
-        />
-        
-        <Route 
-          path="/donor-dashboard" 
-          element={
-            user && user.userType === 'donor' ? (
-              <DonorDashboard user={user} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-        
-        <Route 
-          path="/recipient-dashboard" 
-          element={
-            user && user.userType === 'recipient' ? (
-              <RecipientDashboard user={user} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-      </Routes>
-    </Router>
+    <div className="App">
+      <Navbar 
+        onNavigate={setCurrentPage} 
+        user={user} 
+        onLogout={handleLogout}
+        currentPage={currentPage}
+      />
+      {renderPage()}
+    </div>
   );
 }
 
